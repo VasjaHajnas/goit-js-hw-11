@@ -1,27 +1,41 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
+import InfiniteScroll from 'infinite-scroll';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const API_KEY = '36209289-3700e98ba1a72eb9f5e50a7da';
 const perPage = 40;
 let page = 1;
 let currentQuery = '';
-
-const form = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreButton = document.querySelector('.load-more');
+const form = document.getElementById('search-form');
+const lightbox = new SimpleLightbox('.gallery a');
 
-form.addEventListener('submit', async e => {
+const infScroll = new InfiniteScroll(gallery, {
+  path: generateApiUrl,
+  responseType: 'text',
+  history: false,
+});
+
+form.addEventListener('submit', handleFormSubmit);
+loadMoreButton.addEventListener('click', loadMoreImages);
+
+infScroll.on('load', loadMoreImages);
+
+async function handleFormSubmit(e) {
   e.preventDefault();
   gallery.innerHTML = '';
   page = 1;
   currentQuery = e.target.searchQuery.value.trim();
-  searchImages(currentQuery, page);
-});
+  await searchImages(currentQuery, page);
+}
 
-loadMoreButton.addEventListener('click', () => {
+async function loadMoreImages() {
   page += 1;
-  searchImages(currentQuery, page);
-});
+  await searchImages(currentQuery, page);
+}
 
 async function searchImages(query, pageNumber) {
   try {
@@ -37,19 +51,20 @@ async function searchImages(query, pageNumber) {
       },
     });
 
-    const data = response.data;
-    const totalHits = data.totalHits;
-    const images = data.hits;
+    const { totalHits, hits: images } = response.data;
 
-    if (images.length === 0) {
-      Notiflix.Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    } else {
-      images.forEach(image => {
+    if (totalHits > 0) {
+      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+
+      const imageElements = images.map(image => {
         const photoCard = createPhotoCard(image);
-        gallery.appendChild(photoCard);
+        const imageLink = document.createElement('a');
+        imageLink.href = image.largeImageURL;
+        imageLink.appendChild(photoCard);
+        return imageLink;
       });
+
+      gallery.append(...imageElements);
 
       if (page === 1) {
         loadMoreButton.classList.add('show');
@@ -61,7 +76,13 @@ async function searchImages(query, pageNumber) {
           "We're sorry, but you've reached the end of search results."
         );
       }
+    } else {
+      Notiflix.Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
     }
+
+    lightbox.refresh();
   } catch (error) {
     console.error(error);
     Notiflix.Notify.failure('An error occurred while fetching images.');
@@ -69,40 +90,39 @@ async function searchImages(query, pageNumber) {
 }
 
 function createPhotoCard(image) {
+  const { webformatURL, tags, likes, views, comments, downloads } = image;
+
   const card = document.createElement('div');
   card.classList.add('photo-card');
 
   const img = document.createElement('img');
-  img.src = image.webformatURL;
-  img.alt = image.tags;
+  img.src = webformatURL;
+  img.alt = tags;
   img.loading = 'lazy';
 
   const info = document.createElement('div');
   info.classList.add('info');
 
-  const likes = document.createElement('p');
-  likes.classList.add('info-item');
-  likes.innerHTML = `<b>Likes:</b> ${image.likes}`;
+  const infoItems = [
+    { label: 'Likes', value: likes },
+    { label: 'Views', value: views },
+    { label: 'Comments', value: comments },
+    { label: 'Downloads', value: downloads },
+  ];
 
-  const views = document.createElement('p');
-  views.classList.add('info-item');
-  views.innerHTML = `<b>Views:</b> ${image.views}`;
-
-  const comments = document.createElement('p');
-  comments.classList.add('info-item');
-  comments.innerHTML = `<b>Comments:</b> ${image.comments}`;
-
-  const downloads = document.createElement('p');
-  downloads.classList.add('info-item');
-  downloads.innerHTML = `<b>Downloads:</b> ${image.downloads}`;
-
-  info.appendChild(likes);
-  info.appendChild(views);
-  info.appendChild(comments);
-  info.appendChild(downloads);
+  infoItems.forEach(item => {
+    const itemElement = document.createElement('p');
+    itemElement.classList.add('info-item');
+    itemElement.innerHTML = `<b>${item.label}:</b> ${item.value}`;
+    info.appendChild(itemElement);
+  });
 
   card.appendChild(img);
   card.appendChild(info);
 
   return card;
+}
+
+function generateApiUrl() {
+  return `https://pixabay.com/api/?key=${API_KEY}&q=${currentQuery}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${perPage}&page=${page}`;
 }

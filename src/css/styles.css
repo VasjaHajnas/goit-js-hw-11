@@ -5,12 +5,15 @@ body {
   background-color: #f0f0f0;
 }
 
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #fff;
+.header {
+  background-color: #260fbf;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: auto; /* ця лінія здається зайвою, оскільки `auto` - це значення за замовчуванням для `max-width` */
+  margin: 0 auto;
+  padding: 10px;
 }
 
 h1 {
@@ -19,46 +22,65 @@ h1 {
 
 .search-form {
   display: flex;
-  margin-bottom: 20px;
+  justify-content: center;
+  background-color: #0b3d9a;
+  padding: 10px;
+  margin-bottom: 5px;
 }
 
 input[type='text'] {
+  max-width: calc(30% - 10px);
   flex: 1;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
   border-radius: 4px;
+  margin: 0;
+  display: inline-block;
 }
 
 button[type='submit'] {
-  background-color: #e0bc45;
+  background-color: #f9f5f5;
   color: #fff;
   border: none;
   border-radius: 4px;
   padding: 10px 20px;
   cursor: pointer;
+  display: inline-block;
+  margin-left: 5px;
 }
 
 .gallery {
-  display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  display: flex;
 }
 
 .photo-card {
-  width: calc(50% - 10px);
   margin-bottom: 20px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .photo-card img {
   max-width: 100%;
   height: auto;
+  flex: 1;
+  width: 100%;
 }
 
 .info {
+  display: flex;
   margin-top: 10px;
   font-size: 14px;
+  gap: 10px;
+  flex: 1;
 }
 
 .load-more {
