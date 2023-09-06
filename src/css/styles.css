@@ -11,13 +11,12 @@ body {
 }
 
 .container {
-  max-width: auto; /* ця лінія здається зайвою, оскільки `auto` - це значення за замовчуванням для `max-width` */
   margin: 0 auto;
   padding: 10px;
 }
 
 h1 {
-  text-align: center;
+  display: none;
 }
 
 .search-form {
@@ -50,15 +49,18 @@ button[type='submit'] {
 }
 
 .gallery {
+  display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between; /* Arrange images in three columns */
   gap: 8px;
   margin-bottom: 16px;
   padding-bottom: 8px;
-  display: flex;
 }
 
 .photo-card {
+  width: calc(
+    30% - 8px
+  ); /* 30% width for each column with 8px gap in between */
   margin-bottom: 20px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   padding: 10px;
