@@ -15,6 +15,7 @@ const lightbox = new SimpleLightbox('.gallery a');
 let currentPage = 1;
 let currentQuery = '';
 let initialLoad = true;
+let noResultsShown = false;
 
 async function searchImages(query) {
   try {
@@ -22,9 +23,12 @@ async function searchImages(query) {
     const { hits, totalHits } = data;
 
     if (hits.length === 0) {
-      showErrorMessage(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
+      if (!noResultsShown) {
+        showErrorMessage(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+        noResultsShown = true;
+      }
       return;
     }
 
@@ -55,10 +59,10 @@ searchForm.addEventListener('submit', async e => {
   currentPage = 1;
   gallery.innerHTML = '';
   initialLoad = true;
+  noResultsShown = false;
   searchImages(currentQuery);
 });
 
-// Infinite scroll
 window.addEventListener('scroll', () => {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
   if (scrollTop + clientHeight >= scrollHeight - 100) {
@@ -69,5 +73,4 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Initial search
 searchImages(currentQuery);
