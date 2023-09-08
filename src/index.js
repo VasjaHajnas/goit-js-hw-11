@@ -13,6 +13,7 @@ let currentPage = 1;
 let currentQuery = '';
 let initialLoad = true;
 let noResultsShown = false;
+let loading = false;
 async function searchImages(query) {
   try {
     const data = await fetchImages(query, currentPage);
@@ -36,6 +37,8 @@ async function searchImages(query) {
     showErrorMessage(
       'An error occurred while fetching images. Please try again later.'
     );
+  } finally {
+    loading = false;
   }
 }
 searchForm.addEventListener('submit', async e => {
@@ -54,9 +57,11 @@ searchForm.addEventListener('submit', async e => {
 });
 window.addEventListener('scroll', () => {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 100) {
+  const scrollTrigger = 100;
+  if (!loading && scrollTop + clientHeight >= scrollHeight - scrollTrigger) {
     if (currentQuery !== '') {
       currentPage++;
+      loading = true;
       searchImages(currentQuery);
     }
   }
