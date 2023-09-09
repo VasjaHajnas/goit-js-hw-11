@@ -18,7 +18,6 @@ let loading = false;
 let totalHits = 0;
 let displayedHits = 0;
 
-// Функція для пошуку та відображення зображень
 async function searchAndDisplayImages(query) {
   try {
     const data = await fetchImages(query, currentPage);
@@ -53,7 +52,6 @@ async function searchAndDisplayImages(query) {
   }
 }
 
-// Функція для обробки події подачі форми пошуку
 async function handleSearchFormSubmit(e) {
   e.preventDefault();
   const searchInput = searchForm.querySelector('input[name="searchQuery"]');
@@ -73,7 +71,6 @@ async function handleSearchFormSubmit(e) {
   await searchAndDisplayImages(currentQuery);
 }
 
-// Функція для завантаження зображень при прокрутці
 function handleScroll() {
   const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
   const scrollTrigger = 100;
@@ -92,6 +89,5 @@ function handleScroll() {
   }
 }
 
-// Додавання обробників подій
 searchForm.addEventListener('submit', handleSearchFormSubmit);
 window.addEventListener('scroll', handleScroll);
